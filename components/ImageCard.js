@@ -1,13 +1,14 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { Image } from "expo-image";
-import React from "react";
+import React, { useState } from "react";
+import Animated, { FadeIn } from "react-native-reanimated";
+
 import { getImageSize, wp } from "../helpers/common";
 import { theme } from "../constants/theme";
 
 const ImageCard = ({ item, index, columns }) => {
-  // console.log('====================================');
-  // console.log(index,columns);
-  // console.log('====================================');
+  const [loaded, setLoaded] = useState(false);
+
   const getImageHeight = () => {
     const { imageHeight: height, imageWidth: width } = item;
     return { height: getImageSize(height, width) };
@@ -18,13 +19,18 @@ const ImageCard = ({ item, index, columns }) => {
   };
 
   return (
-    <Pressable style={[styles.imageWrapper, !isLastInRow() && styles.spacing]}>
-      <Image
-        style={[styles.image, getImageHeight()]}
-        source={item?.webformatURL}
-        transition={100}
-      />
-    </Pressable>
+    <Animated.View entering={FadeIn.delay(index * 150).duration(100)}>
+      <Pressable
+        style={[styles.imageWrapper, !isLastInRow() && styles.spacing]}
+      >
+        <Image
+          style={[styles.image, getImageHeight()]}
+          source={item?.webformatURL}
+          transition={100}
+          onLoadEnd={() => setLoaded(true)}
+        />
+      </Pressable>
+    </Animated.View>
   );
 };
 

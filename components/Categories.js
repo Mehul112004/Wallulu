@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
-import { CategoriesData } from "../constants/data";
+import { data } from "../constants/data";
 import CategoryItem from "./CategoryItem";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import { hp, wp } from "../helpers/common";
@@ -13,7 +13,7 @@ const Categories = ({ activeCategory, handleChangeCategory }) => {
       horizontal
       contentContainerStyle={styles.flatListContainer}
       showsHorizontalScrollIndicator={false}
-      data={CategoriesData}
+      data={data.categories}
       keyExtractor={item=> item}
       renderItem={({ item,index }) => (
         <CategoryItem

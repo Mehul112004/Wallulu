@@ -1,4 +1,4 @@
-export const CategoriesData = [
+const categories = [
   "backgrounds",
   "fashion",
   "nature",
@@ -20,3 +20,26 @@ export const CategoriesData = [
   "business",
   "music",
 ];
+
+const filters = {
+  order: ["popular", "latest"],
+  orientation: ["horizontal", "vertical"],
+  type: ["photo", "illustration", "vector"],
+  colors: [
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue",
+    "turquoise",
+    "pink",
+    "gray",
+    "black",
+    "brown",
+    "white",
+  ],
+};
+
+export const data = {
+  categories,filters
+}

@@ -19,7 +19,6 @@ const ImageGrid = ({ images }) => {
         )}
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={200}
-        one
         // ListEmptyComponent={
         //   <View
         //     style={{ flex: 1, justifyContent: "center", alignItems: "center" }}

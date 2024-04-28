@@ -17,42 +17,66 @@ import { theme } from "../../constants/theme";
 import Categories from "../../components/Categories";
 import { apiCall } from "../../api";
 import ImageGrid from "../../components/ImageGrid";
+import FiltersModal from "../../components/FiltersModal";
 
 const Home = () => {
   const { top } = useSafeAreaInsets();
   const paddingTop = top > 0 ? top + 10 : 30;
 
   const [search, setSearch] = useState("");
-  console.log(search);
+  const [filters, setFilters] = useState(null);
   const searchInputRef = useRef(null);
+  const modalRef = useRef(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [images, setImages] = useState([]);
 
+  const openFiltersModal = () => {
+    modalRef?.current?.present();
+  };
+  const closeFiltersModal = () => {
+    modalRef?.current?.dismiss();
+  };
+
+  const applyFilters = () => {
+    console.log("Applying filters");
+    closeFiltersModal();
+  };
+  const resetFilters = () => {
+    console.log("Resetting filters");
+    closeFiltersModal();
+  };
+
   const handleChangeCategory = (cat) => {
     setActiveCategory(cat);
+    clearSearch();
+    setImages([]);
+    page = 1;
+    let params = { page };
+    if (cat) params = { page: 1, category: cat };
+    fetchImages(params, false);
   };
 
   const handleSearch = (text) => {
-    // console.log('====================================');
-    // console.log("searching for",text);
-    // console.log('====================================');
     setSearch(text);
     if (text.length >= 2) {
       page = 1;
-      //search for images
       setImages([]);
-      fetchImages({ page, q: text });
+      setActiveCategory(null);
+      fetchImages({ page, q: text }, false);
     }
     if (!text.length) {
-      console.log('====================================');
-      console.log("inside empty search");
-      console.log('====================================');
       page = 1;
       setImages([]);
+      setActiveCategory(null);
       setSearch("");
-    searchInputRef.current.clear();
-      fetchImages({ page });
+      searchInputRef.current.clear();
+      fetchImages({ page }, false);
     }
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    searchInputRef.current.clear();
   };
   const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
@@ -60,9 +84,9 @@ const Home = () => {
     fetchImages();
   }, []);
 
-  const fetchImages = async (params = { page: 1 }, append = false) => {
+  const fetchImages = async (params = { page: 1 }, append = true) => {
     console.log("====================================");
-    console.log("params", params, append);
+    console.log(params, append);
     console.log("====================================");
     let res = await apiCall(params);
     if (res.success && res?.data?.hits) {
@@ -77,7 +101,7 @@ const Home = () => {
         <Pressable>
           <Text style={styles.title}>Wallulu</Text>
         </Pressable>
-        <Pressable>
+        <Pressable onPress={() => openFiltersModal()}>
           <FontAwesome6
             name="bars-staggered"
             size={24}
@@ -104,7 +128,7 @@ const Home = () => {
           {search && (
             <Pressable
               style={styles.closeIcon}
-              onPress={()=>handleSearch('')}
+              onPress={() => handleSearch("")}
             >
               <Ionicons
                 name="close"
@@ -121,12 +145,16 @@ const Home = () => {
           />
         </View>
         {/* {masonry layout} */}
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ImageGrid images={images} />
-        </View>
+        <View>{images.length > 0 && <ImageGrid images={images} />}</View>
       </ScrollView>
+      <FiltersModal
+        modalRef={modalRef}
+        filters={filters}
+        setFilters={setFilters}
+        onClose={closeFiltersModal}
+        onApply={applyFilters}
+        onReset={resetFilters}
+      />
     </View>
   );
 };

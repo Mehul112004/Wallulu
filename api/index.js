@@ -10,16 +10,10 @@ const formatUrl = (params) => {
     let value = key == "q" ? encodeURIComponent(params[key]) : params[key];
     url += `&${key}=${value}`;
   });
-  console.log('====================================');
-  console.log(url);
-  console.log('====================================');
   return url;
 };
 
 export const apiCall = async (params) => {
-  // console.log('====================================');
-  // console.log(params);
-  // console.log('====================================');
   try {
     const response = await axios.get(formatUrl(params));
     const {data} =response;
