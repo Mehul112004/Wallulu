@@ -12,12 +12,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontAwesome6, Feather, Ionicons } from "@expo/vector-icons";
 import { debounce } from "lodash";
 
-import { wp, hp, capitalize } from "../../helpers/common";
-import { theme } from "../../constants/theme";
 import Categories from "../../components/Categories";
-import { apiCall } from "../../api";
 import ImageGrid from "../../components/ImageGrid";
 import FiltersModal from "../../components/FiltersModal";
+import { wp, hp, capitalize } from "../../helpers/common";
+import { theme } from "../../constants/theme";
+import { apiCall } from "../../api";
 
 const Home = () => {
   const { top } = useSafeAreaInsets();
@@ -25,13 +25,60 @@ const Home = () => {
 
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({});
-  console.log("====================================");
-  console.log(filters);
-  console.log("====================================");
   const searchInputRef = useRef(null);
   const modalRef = useRef(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [images, setImages] = useState([]);
+
+  const handleSearch = (text) => {
+    setSearch(text);
+    if (text.length >= 2) {
+      page = 1;
+      setImages([]);
+      setActiveCategory(null);
+      fetchImages({ page, q: text, ...filters }, false);
+    }
+    if (!text.length) {
+      page = 1;
+      setImages([]);
+      setActiveCategory(null);
+      setSearch("");
+      searchInputRef.current.clear();
+      fetchImages({ page, ...filters }, false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    searchInputRef.current.clear();
+  };
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
+
+  const fetchImages = async (params = { page: 1 }, append = true) => {
+    console.log("====================================");
+    console.log(params, append);
+    console.log("====================================");
+    let res = await apiCall(params);
+    if (res.success && res?.data?.hits) {
+      if (append) setImages([...images, ...res.data.hits]);
+      else setImages([...res.data.hits]);
+    }
+  };
+
+  const handleChangeCategory = (cat) => {
+    setActiveCategory(cat);
+    clearSearch();
+    setImages([]);
+    page = 1;
+    let params = { page };
+    if (cat) params = { page: 1, category: cat };
+    if (filters) params = { ...params, ...filters };
+    fetchImages(params, false);
+  };
 
   const openFiltersModal = () => {
     modalRef?.current?.present();
@@ -83,56 +130,6 @@ const Home = () => {
     fetchImages(params, false);
   };
 
-  const handleChangeCategory = (cat) => {
-    setActiveCategory(cat);
-    clearSearch();
-    setImages([]);
-    page = 1;
-    let params = { page };
-    if (cat) params = { page: 1, category: cat };
-    if (filters) params = { ...params, ...filters };
-    fetchImages(params, false);
-  };
-
-  const handleSearch = (text) => {
-    setSearch(text);
-    if (text.length >= 2) {
-      page = 1;
-      setImages([]);
-      setActiveCategory(null);
-      fetchImages({ page, q: text, ...filters }, false);
-    }
-    if (!text.length) {
-      page = 1;
-      setImages([]);
-      setActiveCategory(null);
-      setSearch("");
-      searchInputRef.current.clear();
-      fetchImages({ page, ...filters }, false);
-    }
-  };
-
-  const clearSearch = () => {
-    setSearch("");
-    searchInputRef.current.clear();
-  };
-  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
-
-  useEffect(() => {
-    fetchImages();
-  }, []);
-
-  const fetchImages = async (params = { page: 1 }, append = true) => {
-    console.log("====================================");
-    console.log(params, append);
-    console.log("====================================");
-    let res = await apiCall(params);
-    if (res.success && res?.data?.hits) {
-      if (append) setImages([...images, ...res.data.hits]);
-      else setImages([...res.data.hits]);
-    }
-  };
-
   return (
     <View style={[styles.container, { paddingTop }]}>
       <View style={styles.header}>
@@ -159,7 +156,6 @@ const Home = () => {
               placeholder="Search for photos..."
               style={styles.searchInput}
               onChangeText={handleTextDebounce}
-              // value={search}
               ref={searchInputRef}
             />
           </View>
@@ -184,7 +180,7 @@ const Home = () => {
           />
         </View>
         {/*Filters */}
-        {Object.keys(filters).length>0 && (
+        {Object.keys(filters).length > 0 && (
           <View style={{ flex: 1 }}>
             <ScrollView
               horizontal

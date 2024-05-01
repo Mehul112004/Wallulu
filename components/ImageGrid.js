@@ -2,14 +2,13 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { MasonryFlashList } from "@shopify/flash-list";
 import ImageCard from "./ImageCard";
-import { wp, getColumnCount, hp } from "../helpers/common";
+import { wp, getColumnCount } from "../helpers/common";
 const image = [];
 
 const ImageGrid = ({ images }) => {
   const columns = getColumnCount();
   return (
     <View style={styles.container}>
-      {/* <Text>ImageGrid</Text> */}
       <MasonryFlashList
         data={images}
         numColumns={columns}
@@ -19,16 +18,6 @@ const ImageGrid = ({ images }) => {
         )}
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={200}
-        // ListEmptyComponent={
-        //   <View
-        //     style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        //   >
-        //     <Text style={{ fontSize: hp(4),fontWeight:'bold',fontVariant:'small-caps' }}>
-        //       {`Sorry Couldn't load
-        //    the data!`}
-        //     </Text>
-        //   </View>
-        // }
       />
     </View>
   );
