@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontAwesome6, Feather, Ionicons } from "@expo/vector-icons";
 import { debounce } from "lodash";
 
-import { wp, hp } from "../../helpers/common";
+import { wp, hp, capitalize } from "../../helpers/common";
 import { theme } from "../../constants/theme";
 import Categories from "../../components/Categories";
 import { apiCall } from "../../api";
@@ -24,7 +24,10 @@ const Home = () => {
   const paddingTop = top > 0 ? top + 10 : 30;
 
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState(null);
+  const [filters, setFilters] = useState({});
+  console.log("====================================");
+  console.log(filters);
+  console.log("====================================");
   const searchInputRef = useRef(null);
   const modalRef = useRef(null);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -38,12 +41,46 @@ const Home = () => {
   };
 
   const applyFilters = () => {
-    console.log("Applying filters");
+    if (filters) {
+      page = 1;
+      setImages([]);
+      let params = {
+        page,
+        ...filters,
+      };
+      if (activeCategory) params.category = activeCategory;
+      if (search) params.q = search;
+      fetchImages(params, false);
+    }
     closeFiltersModal();
   };
   const resetFilters = () => {
-    console.log("Resetting filters");
+    if (filters) {
+      page = 1;
+      setImages([]);
+      setFilters({});
+      let params = {
+        page,
+      };
+      if (activeCategory) params.category = activeCategory;
+      if (search) params.q = search;
+      fetchImages(params, false);
+    }
     closeFiltersModal();
+  };
+  const clearThisFilter = (key) => {
+    let filterz = { ...filters };
+    delete filterz[key];
+    filterz ? setFilters({ ...filterz }) : setFilters({});
+    page = 1;
+    setImages([]);
+    let params = {
+      page,
+      ...filterz,
+    };
+    if (activeCategory) params.category = activeCategory;
+    if (search) params.q = search;
+    fetchImages(params, false);
   };
 
   const handleChangeCategory = (cat) => {
@@ -53,6 +90,7 @@ const Home = () => {
     page = 1;
     let params = { page };
     if (cat) params = { page: 1, category: cat };
+    if (filters) params = { ...params, ...filters };
     fetchImages(params, false);
   };
 
@@ -62,7 +100,7 @@ const Home = () => {
       page = 1;
       setImages([]);
       setActiveCategory(null);
-      fetchImages({ page, q: text }, false);
+      fetchImages({ page, q: text, ...filters }, false);
     }
     if (!text.length) {
       page = 1;
@@ -70,7 +108,7 @@ const Home = () => {
       setActiveCategory(null);
       setSearch("");
       searchInputRef.current.clear();
-      fetchImages({ page }, false);
+      fetchImages({ page, ...filters }, false);
     }
   };
 
@@ -138,12 +176,54 @@ const Home = () => {
             </Pressable>
           )}
         </View>
+        {/*Categories */}
         <View style={styles.CategoriesContainer}>
           <Categories
             activeCategory={activeCategory}
             handleChangeCategory={handleChangeCategory}
           />
         </View>
+        {/*Filters */}
+        {Object.keys(filters).length>0 && (
+          <View style={{ flex: 1 }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filters}
+            >
+              {Object.keys(filters).map((key, index) => {
+                return (
+                  <View key={key} style={styles.filterItem}>
+                    {key == "colors" ? (
+                      <View
+                        style={{
+                          height: 20,
+                          width: 30,
+                          borderRadius: 7,
+                          backgroundColor: filters[key],
+                        }}
+                      />
+                    ) : (
+                      <Text style={styles.filterItemText}>
+                        {capitalize(filters[key])}
+                      </Text>
+                    )}
+                    <Pressable
+                      style={styles.filterCloseIcon}
+                      onPress={() => clearThisFilter(key)}
+                    >
+                      <Ionicons
+                        name="close"
+                        size={15}
+                        color={theme.colors.neutral(0.6)}
+                      />
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
         {/* {masonry layout} */}
         <View>{images.length > 0 && <ImageGrid images={images} />}</View>
       </ScrollView>
@@ -220,5 +300,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  filters: {
+    padding: wp(2),
+    gap: 10,
+    paddingHorizontal: 10,
+  },
+  filterItem: {
+    backgroundColor: theme.colors.grayBG,
+    padding: 3,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderRadius: theme.radius.xs,
+    padding: 8,
+    gap: 10,
+    paddingHorizontal: 10,
+  },
+  filterItemText: {
+    fontSize: hp(1.9),
+  },
+  filterCloseIcon: {
+    backgroundColor: theme.colors.neutral(0.2),
+    padding: 4,
+    borderRadius: 7,
   },
 });

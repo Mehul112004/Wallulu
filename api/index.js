@@ -1,5 +1,8 @@
 import axios from "axios";
 const key = process.env.EXPO_PUBLIC_API_KEY;
+console.log('====================================');
+console.log(key);
+console.log('====================================');
 const api_url = `https://pixabay.com/api/?key=${key}`;
 
 const formatUrl = (params) => {
@@ -10,6 +13,9 @@ const formatUrl = (params) => {
     let value = key == "q" ? encodeURIComponent(params[key]) : params[key];
     url += `&${key}=${value}`;
   });
+  console.log('====================================');
+  console.log(url);
+  console.log('====================================');
   return url;
 };
 
