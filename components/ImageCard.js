@@ -6,7 +6,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { getImageSize, wp } from "../helpers/common";
 import { theme } from "../constants/theme";
 
-const ImageCard = ({ item, index, columns }) => {
+const ImageCard = ({ item, index, columns,router }) => {
   const [loaded, setLoaded] = useState(false);
 
   const getImageHeight = () => {
@@ -20,7 +20,7 @@ const ImageCard = ({ item, index, columns }) => {
 
   return (
     <Animated.View entering={FadeIn.delay(index * 150).duration(100)}>
-      <Pressable
+      <Pressable onPress={()=>router.push({pathname:'home/image',params:{...item}})}
         style={[styles.imageWrapper, !isLastInRow() && styles.spacing]}
       >
         <Image

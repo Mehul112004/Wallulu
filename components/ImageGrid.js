@@ -5,7 +5,7 @@ import ImageCard from "./ImageCard";
 import { wp, getColumnCount } from "../helpers/common";
 const image = [];
 
-const ImageGrid = ({ images }) => {
+const ImageGrid = ({ images,router }) => {
   const columns = getColumnCount();
   return (
     <View style={styles.container}>
@@ -14,7 +14,7 @@ const ImageGrid = ({ images }) => {
         numColumns={columns}
         initialNumToRender={10}
         renderItem={({ item, index }) => (
-          <ImageCard index={index} item={item} columns={columns} />
+          <ImageCard router = {router} index={index} item={item} columns={columns} />
         )}
         contentContainerStyle={styles.contentContainer}
         estimatedItemSize={200}

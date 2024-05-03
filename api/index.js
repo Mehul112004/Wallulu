@@ -6,6 +6,7 @@ console.log('====================================');
 const api_url = `https://pixabay.com/api/?key=${key}`;
 
 const formatUrl = (params) => {
+  
   let url = api_url + "&per_page=25&safesearch=true&editors_choice=true";
   if (!params) return url;
   let paramKeys = Object.keys(params);
@@ -20,7 +21,13 @@ const formatUrl = (params) => {
 };
 
 export const apiCall = async (params) => {
+  console.log('====================================');
+  console.log(params);
+  console.log('====================================');
   try {
+    // (setTimeout(() => {
+    //   console.log("Sorry, wait 10 seconds")
+    // }, 1000));
     const response = await axios.get(formatUrl(params));
     const {data} =response;
     return { success: true, data };

@@ -11,6 +11,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontAwesome6, Feather, Ionicons } from "@expo/vector-icons";
 import { debounce } from "lodash";
+import { UIActivityIndicator } from "react-native-indicators";
+import { IOScrollView, InView } from "react-native-intersection-observer";
 
 import Categories from "../../components/Categories";
 import ImageGrid from "../../components/ImageGrid";
@@ -18,6 +20,8 @@ import FiltersModal from "../../components/FiltersModal";
 import { wp, hp, capitalize } from "../../helpers/common";
 import { theme } from "../../constants/theme";
 import { apiCall } from "../../api";
+import { useRouter } from "expo-router";
+let page = 1;
 
 const Home = () => {
   const { top } = useSafeAreaInsets();
@@ -27,8 +31,11 @@ const Home = () => {
   const [filters, setFilters] = useState({});
   const searchInputRef = useRef(null);
   const modalRef = useRef(null);
+  const scrollRef = useRef(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [images, setImages] = useState([]);
+
+const router = useRouter();
 
   const handleSearch = (text) => {
     setSearch(text);
@@ -130,10 +137,30 @@ const Home = () => {
     fetchImages(params, false);
   };
 
+  const handleScrollEnd = () => {
+
+      page += 1;
+      let params = {
+        page,
+        ...filters,
+      };
+      if (activeCategory) params.category = activeCategory;
+      if (search) params.q = search;
+      fetchImages(params, true);
+    
+  };
+
+  const handleScrollUp = () => {
+    scrollRef?.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  };
+
   return (
     <View style={[styles.container, { paddingTop }]}>
       <View style={styles.header}>
-        <Pressable>
+        <Pressable onPress={handleScrollUp}>
           <Text style={styles.title}>Wallulu</Text>
         </Pressable>
         <Pressable onPress={() => openFiltersModal()}>
@@ -144,7 +171,10 @@ const Home = () => {
           />
         </Pressable>
       </View>
-      <ScrollView contentContainerStyle={{ gap: 15, alignItems: "center" }}>
+      <IOScrollView
+        ref={scrollRef}
+        contentContainerStyle={{ gap: 15, alignItems: "center" }}
+      >
         <View style={styles.searchBar}>
           <View style={styles.searchIcon}>
             <Feather
@@ -220,9 +250,28 @@ const Home = () => {
             </ScrollView>
           </View>
         )}
+
         {/* {masonry layout} */}
-        <View>{images.length > 0 && <ImageGrid images={images} />}</View>
-      </ScrollView>
+        <View style={{ flex: 1 }}>
+          {images.length > 0 && <ImageGrid router = {router} images={images} />}
+        </View>
+
+        <InView
+          style={{
+            flex: 1,
+            marginTop: images.length == 0 ? 70 : 10,
+            marginBottom: 20,
+          }}
+          onChange={(inView) => {
+            if (inView) {
+              handleScrollEnd();
+              // setEndReached(false)
+            }
+          }}
+        >
+          <UIActivityIndicator size={40} color={theme.colors.neutral(0.6)} />
+        </InView>
+      </IOScrollView>
       <FiltersModal
         modalRef={modalRef}
         filters={filters}
