@@ -23,7 +23,6 @@ const HomeScreen = () => {
       />
       <Animated.View
         entering={FadeInDown.duration(1000)}
-        exiting={FadeInUp.duration(600)}
         style={{ flex: 1 }}
       >
         <LinearGradient
@@ -39,22 +38,19 @@ const HomeScreen = () => {
         />
         <View style={styles.contentContainer}>
           <Animated.Text
-            entering={FadeInDown.delay(400).springify()}
-            exiting={FadeInLeft.springify()}
+            entering={FadeInDown.delay(400).springify().damping(14)}
             style={styles.title}
           >
             Wallulu
           </Animated.Text>
           <Animated.Text
-            entering={FadeInDown.delay(500).springify()}
-            exiting={FadeInLeft.springify()}
+            entering={FadeInDown.delay(500).springify().damping(14)}
             style={styles.punchLine}
           >
             Let's get lost in Delulu!
           </Animated.Text>
           <Animated.View
-            entering={FadeInDown.delay(600).springify()}
-            exiting={FadeInLeft.springify()}
+            entering={FadeInDown.delay(600).springify().damping(14)}
           >
             <Pressable
               style={styles.startButton}
