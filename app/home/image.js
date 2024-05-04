@@ -6,6 +6,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { theme } from "../../constants/theme";
 import { UIActivityIndicator } from "react-native-indicators";
+import * as FileSystem from 'expo-file-system';
+// import * as Permissions from 'expo-permissions';
+// import * as MediaLibrary from 'expo-media-library';
+import moment from 'moment';
 
 const ImageScreen = () => {
   const router = useRouter();
@@ -38,9 +42,11 @@ const ImageScreen = () => {
       style={styles.container}
       experimentalBlurMethod="dimezisBlurView"
     >
-      <View style={[getSize(),{marginBottom:50}]}>
+      <View style={[getSize(), { marginBottom: 50 }]}>
         <View style={styles.loading}>
-          {status == "loading" && <UIActivityIndicator size={40} color="white" />}
+          {status == "loading" && (
+            <UIActivityIndicator size={40} color="white" />
+          )}
         </View>
         <Image
           transition={100}
@@ -49,7 +55,10 @@ const ImageScreen = () => {
           onLoad={onLoad}
         />
       </View>
-      <Button title="Back" onPress={() => router.back()} />
+      <View style={{gap:15,flexDirection:'row'}}>
+        <Button title="Back" onPress={() => router.back()} />
+        <Button title="Download" onPress={() => router.back()} />
+      </View>
     </BlurView>
   );
 };
@@ -70,11 +79,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.1)",
     borderColor: "rgba(255,255,255,0.1)",
   },
-  loading:{
-    position:'absolute',
-    width:'100%',
-    height:'100%',
-    justifyContent:'center',
-    alignItems:'center',
-  }
+  loading: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

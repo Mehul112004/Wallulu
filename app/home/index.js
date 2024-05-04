@@ -34,6 +34,9 @@ const Home = () => {
   const scrollRef = useRef(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [images, setImages] = useState([]);
+  console.log('====================================');
+  console.log("inside home index: ",images);
+  console.log('====================================');
 
 const router = useRouter();
 
@@ -271,6 +274,7 @@ const router = useRouter();
         >
           <UIActivityIndicator size={40} color={theme.colors.neutral(0.6)} />
         </InView>
+        {images.length == 0 && <Text>No images found</Text>}
       </IOScrollView>
       <FiltersModal
         modalRef={modalRef}
